@@ -51,13 +51,15 @@ class Translator:
         "Узбекский сум": 0.0055,
     }
 
+    def translate_currency_to_rub(self, currency: str) -> int or float:
+        return self.currency_to_rub[currency]
+
     def translate(self, key: str, dict_name: str = None) -> str:
         if dict_name is not None:
             return self.__getattribute__(dict_name)[key]
         return self.__getattribute__(key)
 
-    def translate_currency_to_rub(self, currency: str) -> int or float:
-        return self.currency_to_rub[currency]
+
 
 
 class CSV:
@@ -115,11 +117,18 @@ class Vacansii:
 
     def __init__(self, fields: dict):
         for key, value in fields.items():
-            if not self.check_salary(key, value):
+            if not self.proverka_zp(key, value):
                 self.__setattr__(key, self.get_correct_field(key, value))
 
 
-    def check_salary(self, key: str, value: str) -> bool:
+
+
+    def get_field(self, field: str):
+        if field in 'salary':
+            return self.salary.get_average_in_rur()
+        return self.__getattribute__(field)
+
+    def proverka_zp(self, key: str, value: str) -> bool:
         is_salary = False
         if key in ['salary_from', 'salary_to', 'salary_currency']:
             if not hasattr(self, 'salary'):
@@ -127,13 +136,6 @@ class Vacansii:
             self.salary.set_field(key, value)
             is_salary = True
         return is_salary
-
-    def get_field(self, field: str):
-        if field in 'salary':
-            return self.salary.get_average_in_rur()
-        return self.__getattribute__(field)
-
-
 
 
 
@@ -216,7 +218,6 @@ class DataSet:
                 res[key] = value
                 count += 1
         return res
-
     def get_data(self) -> dict:
         salaries_by_years, vacancies_by_years = [], []
         salaries_by_cities, ratio_vacancies_by_cities = {}, {}
@@ -264,9 +265,6 @@ class Report:
         self.fill_cities_statistics()
 
     # region Excel
-    def generate_excel(self, file_name: str) -> None:
-        self.fill_with_statistics()
-        self.workbook.save(file_name)
 
 
 
@@ -292,6 +290,11 @@ class Report:
                          [cell[0] for cell in ws['E1':f'E{len(profession_vacancies_by_years) + 1}']])
 
         self.update_worksheet_settings(ws)
+
+    def generating_excel(self, file_name: str) -> None:
+        self.fill_with_statistics()
+        self.workbook.save(file_name)
+
 
     def fill_cities_statistics(self) -> None:
         self.workbook.create_sheet("Статистика по городам")
