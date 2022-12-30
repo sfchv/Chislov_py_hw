@@ -10,14 +10,9 @@ from jinja2 import Environment, FileSystemLoader
 import pdfkit
 
 
-def custom_quit(msg: str) -> None:
-    print(msg)
-    quit()
 
 
-
-
-class UserInterface:
+class UI:
     file_name: str
     profession_name: str
 
@@ -28,6 +23,10 @@ class UserInterface:
             self.file_name = "../vacancies.csv"
         self.profession_name = 'Программист'
 
+def custom_quit(msg: str) -> None:
+    print(msg)
+    quit()
+    
 class Translator:
     AZN: str = "Манаты"
     BYR: str = "Белорусские рубли"
@@ -487,7 +486,7 @@ def parse_row_vacancy(row_vacs: list) -> dict:
 
 if __name__ == '__main__':
     translator = Translator()
-    ui = UserInterface("vacancies_by_year.csv")
+    ui = UI("vacancies_by_year.csv")
     csv = CSV(ui.file_name)
     title, row_vacancies = csv.title, csv.rows
     vacancies = [Vacancy(parse_row_vacancy(row_vac)) for row_vac in row_vacancies]
