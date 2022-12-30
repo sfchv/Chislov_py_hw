@@ -10,8 +10,6 @@ from jinja2 import Environment, FileSystemLoader
 import pdfkit
 
 
-
-
 class UI:
     file_name: str
     profession_name: str
@@ -23,10 +21,12 @@ class UI:
             self.file_name = "../vacancies.csv"
         self.profession_name = 'Программист'
 
+
 def custom_quit(msg: str) -> None:
     print(msg)
     quit()
-    
+
+
 class Translator:
     AZN: str = "Манаты"
     BYR: str = "Белорусские рубли"
@@ -58,8 +58,6 @@ class Translator:
         if dict_name is not None:
             return self.__getattribute__(dict_name)[key]
         return self.__getattribute__(key)
-
-
 
 
 class CSV:
@@ -99,7 +97,7 @@ class Salary:
                    (float(self.salary_from) + float(self.salary_to)) // 2)
 
 
-class Vacansii:
+class Vacancy:
     name: str
     salary: Salary
     area_name: str
@@ -117,18 +115,10 @@ class Vacansii:
 
     def __init__(self, fields: dict):
         for key, value in fields.items():
-            if not self.proverka_zp(key, value):
+            if not self.check_salary(key, value):
                 self.__setattr__(key, self.get_correct_field(key, value))
 
-
-
-
-    def get_field(self, field: str):
-        if field in 'salary':
-            return self.salary.get_average_in_rur()
-        return self.__getattribute__(field)
-
-    def proverka_zp(self, key: str, value: str) -> bool:
+    def check_salary(self, key: str, value: str) -> bool:
         is_salary = False
         if key in ['salary_from', 'salary_to', 'salary_currency']:
             if not hasattr(self, 'salary'):
@@ -137,13 +127,16 @@ class Vacansii:
             is_salary = True
         return is_salary
 
-
+    def get_field(self, field: str):
+        if field in 'salary':
+            return self.salary.get_average_in_rur()
+        return self.__getattribute__(field)
 
 
 class DataSet:
     profession_name: str
     profession_count: int
-    vacancies: List[Vacansii]
+    vacancies: List[Vacancy]
     salary_by_years: {int, list}
     vacancies_by_years: {int, int}
     profession_salary_by_years: {int, list}
@@ -181,7 +174,7 @@ class DataSet:
 
         self.set_correct_cities_data()
 
-    def process_salary(self, dict_name: str, field: str, vac: Vacansii) -> None:
+    def process_salary(self, dict_name: str, field: str, vac: Vacancy) -> None:
         d = self.__getattribute__(dict_name)
         f = vac.get_field(field)
         if f not in d.keys():
@@ -190,7 +183,7 @@ class DataSet:
             d[f][0] += vac.salary.get_average_in_rur()
             d[f][1] += 1
 
-    def process_vacancies_count(self, dict_name: str, field: str, vac: Vacansii) -> None:
+    def process_vacancies_count(self, dict_name: str, field: str, vac: Vacancy) -> None:
         d = self.__getattribute__(dict_name)
         f = vac.get_field(field)
         if f not in d.keys():
@@ -218,6 +211,7 @@ class DataSet:
                 res[key] = value
                 count += 1
         return res
+
     def get_data(self) -> dict:
         salaries_by_years, vacancies_by_years = [], []
         salaries_by_cities, ratio_vacancies_by_cities = {}, {}
@@ -259,14 +253,11 @@ class Report:
         for key, value in kwargs.items():
             self.__setattr__(key, value)
 
-
     def fill_with_statistics(self) -> None:
         self.fill_salaries_statistics()
         self.fill_cities_statistics()
 
     # region Excel
-
-
 
     def fill_salaries_statistics(self) -> None:
         ws = self.workbook.active
@@ -294,7 +285,6 @@ class Report:
     def generating_excel(self, file_name: str) -> None:
         self.fill_with_statistics()
         self.workbook.save(file_name)
-
 
     def fill_cities_statistics(self) -> None:
         self.workbook.create_sheet("Статистика по городам")
@@ -329,8 +319,6 @@ class Report:
         column_cells[0].value = header
         for cell, value in zip(column_cells[1:], data):
             cell.value = value
-
-
 
     @staticmethod
     def set_borders(ws) -> None:
@@ -492,7 +480,7 @@ if __name__ == '__main__':
     ui = UI("vacancies_by_year.csv")
     csv = CSV(ui.file_name)
     title, row_vacancies = csv.title, csv.rows
-    vacancies = [Vacansii(parse_row_vacancy(row_vac)) for row_vac in row_vacancies]
+    vacancies = [Vacancy(parse_row_vacancy(row_vac)) for row_vac in row_vacancies]
     ds = DataSet(vacancies, ui.profession_name)
     statistics = ds.get_data()
     report = Report(statistics)
