@@ -51,13 +51,15 @@ class Translator:
         "Узбекский сум": 0.0055,
     }
 
+    def translate_currency_to_rub(self, currency: str) -> int or float:
+        return self.currency_to_rub[currency]
+
     def translate(self, key: str, dict_name: str = None) -> str:
         if dict_name is not None:
             return self.__getattribute__(dict_name)[key]
         return self.__getattribute__(key)
 
-    def translate_currency_to_rub(self, currency: str) -> int or float:
-        return self.currency_to_rub[currency]
+
 
 
 class CSV:
@@ -216,7 +218,6 @@ class DataSet:
                 res[key] = value
                 count += 1
         return res
-
     def get_data(self) -> dict:
         salaries_by_years, vacancies_by_years = [], []
         salaries_by_cities, ratio_vacancies_by_cities = {}, {}
@@ -264,9 +265,6 @@ class Report:
         self.fill_cities_statistics()
 
     # region Excel
-    def generate_excel(self, file_name: str) -> None:
-        self.fill_with_statistics()
-        self.workbook.save(file_name)
 
 
 
@@ -292,6 +290,11 @@ class Report:
                          [cell[0] for cell in ws['E1':f'E{len(profession_vacancies_by_years) + 1}']])
 
         self.update_worksheet_settings(ws)
+
+    def generating_excel(self, file_name: str) -> None:
+        self.fill_with_statistics()
+        self.workbook.save(file_name)
+
 
     def fill_cities_statistics(self) -> None:
         self.workbook.create_sheet("Статистика по городам")
