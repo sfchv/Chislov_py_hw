@@ -97,7 +97,7 @@ class Salary:
                    (float(self.salary_from) + float(self.salary_to)) // 2)
 
 
-class Vacancy:
+class Vacansii:
     name: str
     salary: Salary
     area_name: str
@@ -141,7 +141,7 @@ class Vacancy:
 class DataSet:
     profession_name: str
     profession_count: int
-    vacancies: List[Vacancy]
+    vacancies: List[Vacansii]
     salary_by_years: {int, list}
     vacancies_by_years: {int, int}
     profession_salary_by_years: {int, list}
@@ -179,7 +179,7 @@ class DataSet:
 
         self.set_correct_cities_data()
 
-    def process_salary(self, dict_name: str, field: str, vac: Vacancy) -> None:
+    def process_salary(self, dict_name: str, field: str, vac: Vacansii) -> None:
         d = self.__getattribute__(dict_name)
         f = vac.get_field(field)
         if f not in d.keys():
@@ -188,7 +188,7 @@ class DataSet:
             d[f][0] += vac.salary.get_average_in_rur()
             d[f][1] += 1
 
-    def process_vacancies_count(self, dict_name: str, field: str, vac: Vacancy) -> None:
+    def process_vacancies_count(self, dict_name: str, field: str, vac: Vacansii) -> None:
         d = self.__getattribute__(dict_name)
         f = vac.get_field(field)
         if f not in d.keys():
@@ -489,7 +489,7 @@ if __name__ == '__main__':
     ui = UI("vacancies_by_year.csv")
     csv = CSV(ui.file_name)
     title, row_vacancies = csv.title, csv.rows
-    vacancies = [Vacancy(parse_row_vacancy(row_vac)) for row_vac in row_vacancies]
+    vacancies = [Vacansii(parse_row_vacancy(row_vac)) for row_vac in row_vacancies]
     ds = DataSet(vacancies, ui.profession_name)
     statistics = ds.get_data()
     report = Report(statistics)
