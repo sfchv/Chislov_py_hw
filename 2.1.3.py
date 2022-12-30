@@ -228,11 +228,11 @@ class DataSet:
             for k, v in value.items():
                 if type(v) is list:
                     value[k] = v[0] // v[1]
-            if 'Уровень зп по годам' in key:
+            if 'Уровень денег по годам' in key:
                 salaries_by_years.append(value)
             elif 'Количество вакансий по годам' in key:
                 vacancies_by_years.append(value)
-            elif 'Уровень зп по городам' in key:
+            elif 'Уровень денег по городам' in key:
                 salaries_by_cities = value
             else:
                 ratio_vacancies_by_cities = value
